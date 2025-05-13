@@ -484,16 +484,10 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-<<<<<<< HEAD
-# Personal
-
-=======
 # personal
 **/ARPGSamurai/
-**/Ida_Faber/
+**/Ida Faber/
 **/JTS_TheSamuraiSword/
 **/minotaur1/
-**/Vefects/
->>>>>>> parent of 2497945 (Revert "0513 3DCombot controller, combo")
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,windows,visualstudio
