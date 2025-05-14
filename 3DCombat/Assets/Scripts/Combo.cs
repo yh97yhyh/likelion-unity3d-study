@@ -12,6 +12,11 @@ public class Combo : MonoBehaviour
     string combo1Str = "ARPG_Samurai_Attack_Combo2";
     string combo2Str = "ARPG_Samurai_Attack_Combo3";
     string combo3Str = "ARPG_Samurai_Attack_Combo4";
+    string smash1Str = "ARPG_Samurai_Attack_Sprint";
+    string smash2Str = "ARPG_Samurai_Attack_Heavy2";
+    string smash3_1Str = "ARPG_Samurai_Attack_Heavy1_Start";
+    string smash3_2Str = "ARPG_Samurai_Attack_Heavy1";
+    string parryStr = "ARPG_Samurai_Parry";
 
     void Start()
     {
@@ -32,7 +37,7 @@ public class Combo : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // 방어
+            playerAnim.Play(parryStr);
         }
     }
 
@@ -58,6 +63,8 @@ public class Combo : MonoBehaviour
     {
         if (!inputSmash) // 기본 공격 
         {
+            HitStop.Instance.SetNormalAttack();
+
             if (comboStep == 2)
             {
                 playerAnim.Play(combo2Str);
@@ -69,17 +76,19 @@ public class Combo : MonoBehaviour
         }
         else
         {
+            HitStop.Instance.SetSmashAttack();
+
             if (comboStep == 1)
             {
-                //playerAnim.Play("");
+                playerAnim.Play(smash1Str);
             }
             else if (comboStep == 2)
             {
-                //playerAnim.Play("");
+                playerAnim.Play(smash2Str);
             }
             else if (comboStep == 3)
             {
-                //playerAnim.Play("");
+                playerAnim.Play(smash3_1Str);
             }
         }
     }
