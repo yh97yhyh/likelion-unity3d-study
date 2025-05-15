@@ -37,7 +37,7 @@ public class Minotaurs : MonoBehaviour
 
     void MoveMino()
     {
-        if (dir.magnitude >= 2)
+        if (dir.magnitude >= 1.5)
         {
             anim.SetBool(walkStr, true);
             transform.Translate(Vector3.forward * minoSpeed * Time.deltaTime, Space.Self);
@@ -50,7 +50,7 @@ public class Minotaurs : MonoBehaviour
 
     void AttackMino()
     {
-        if (dir.magnitude < 2)
+        if (dir.magnitude < 1.5)
         {
             switch (atkStep)
             {

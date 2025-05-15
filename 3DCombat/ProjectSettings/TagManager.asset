@@ -11,6 +11,8 @@ TagManager:
   - Counter
   - Col_PlayerAtk
   - Col_EnemyAtk
+  - HPBar_Boss
+  - HPBar_Player
   layers:
   - Default
   - TransparentFX
