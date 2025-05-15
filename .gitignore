@@ -489,5 +489,7 @@ FodyWeavers.xsd
 **/Ida Faber/
 **/JTS_TheSamuraiSword/
 **/minotaur1/
+**/_TerrainAutoUpgrade/
+**/AmplifyShaderEditor/
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,windows,visualstudio
