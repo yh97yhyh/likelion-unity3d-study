@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum AttackState
+public enum CombatState
 {
     Idle,
     Windup,
@@ -21,7 +21,7 @@ public class MeeleFighter : MonoBehaviour
 
     Animator anim;
     public bool inAction { get; set; } = false;
-    AttackState attackState;
+    public CombatState combatState;
     bool doCombo;
     int comboCount = 0;
 
@@ -48,11 +48,7 @@ public class MeeleFighter : MonoBehaviour
         rightHandCollider = anim.GetBoneTransform(HumanBodyBones.RightHand).GetComponent<SphereCollider>();
         leftFootCollider = anim.GetBoneTransform(HumanBodyBones.LeftFoot).GetComponent<SphereCollider>();
         rightFootCollider = anim.GetBoneTransform(HumanBodyBones.RightFoot).GetComponent<SphereCollider>();
-        swordCollider.enabled = false;
-        leftHandCollider.enabled = false;
-        rightHandCollider.enabled = false;
-        leftFootCollider.enabled = false;
-        rightFootCollider.enabled = false;
+        DisableAllHitBox();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -69,7 +65,7 @@ public class MeeleFighter : MonoBehaviour
         {
             StartCoroutine(Attack());
         }
-        else if (attackState == AttackState.Impact || attackState == AttackState.Cooldown)
+        else if (combatState == CombatState.Impact || combatState == CombatState.Cooldown)
         {
             doCombo = true;
         }
@@ -79,7 +75,7 @@ public class MeeleFighter : MonoBehaviour
     IEnumerator Attack()
     {
         inAction = true;
-        attackState = AttackState.Windup;
+        combatState = CombatState.Windup;
 
         anim.CrossFade(attacks[comboCount].AnimName, 0.2f); // 현재 애니메이션 시간의 20%만큼 블렌드 
         yield return null; // 1프레임 null로 넘어가기 
@@ -93,23 +89,23 @@ public class MeeleFighter : MonoBehaviour
 
             var attack = attacks[comboCount];
 
-            if (attackState == AttackState.Windup)
+            if (combatState == CombatState.Windup)
             {
                 if (normalizedTime >= attack.ImpactStartTime)
                 {
-                    attackState = AttackState.Impact;
-                    SetHitBox(true, attack);
+                    combatState = CombatState.Impact;
+                    EnableHitBox(attack);
                 }
             }
-            else if (attackState == AttackState.Impact)
+            else if (combatState == CombatState.Impact)
             {
                 if (normalizedTime >= attack.ImpactEndTime)
                 {
-                    attackState = AttackState.Cooldown;
-                    SetHitBox(false, attack);
+                    combatState = CombatState.Cooldown;
+                    DisableAllHitBox();
                 }
             }
-            else if (attackState == AttackState.Cooldown)
+            else if (combatState == CombatState.Cooldown)
             {
                 if (doCombo)
                 {
@@ -123,7 +119,7 @@ public class MeeleFighter : MonoBehaviour
             yield return null;
         }
 
-        attackState = AttackState.Idle;
+        combatState = CombatState.Idle;
         comboCount = 0;
         inAction = false;
     }
@@ -133,21 +129,65 @@ public class MeeleFighter : MonoBehaviour
         switch (attackData.HitboxToUse)
         {
             case AttackHitbox.LeftHand:
-                leftHandCollider.enabled = enable;
+                if (swordCollider != null)
+                    leftHandCollider.enabled = enable;
                 break;
             case AttackHitbox.RightHand:
-                rightHandCollider.enabled = enable;
+                if (swordCollider != null)
+                    rightHandCollider.enabled = enable;
                 break;
             case AttackHitbox.LeftFoot:
-                leftFootCollider.enabled = enable;
+                if (swordCollider != null)
+                    leftFootCollider.enabled = enable;
                 break;
             case AttackHitbox.RightFoot:
-                rightFootCollider.enabled = enable;
+                if (swordCollider != null)
+                    rightFootCollider.enabled = enable;
                 break;
             case AttackHitbox.Sword:
-                swordCollider.enabled = enable;
+                if (swordCollider != null)
+                    swordCollider.enabled = enable;
                 break;
         }
+    }
+
+    void EnableHitBox(AttackData attack)
+    {
+        switch (attack.HitboxToUse)
+        {
+            case AttackHitbox.LeftHand:
+                leftHandCollider.enabled = true;
+                break;
+            case AttackHitbox.RightHand:
+                rightHandCollider.enabled = true;
+                break;
+            case AttackHitbox.LeftFoot:
+                leftFootCollider.enabled = true;
+                break;
+            case AttackHitbox.RightFoot:
+                rightFootCollider.enabled = true;
+                break;
+            case AttackHitbox.Sword:
+                swordCollider.enabled = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DisableAllHitBox()
+    {
+        if (swordCollider != null)
+            swordCollider.enabled = false;
+
+        if (leftHandCollider != null)
+            leftHandCollider.enabled = false;
+        if (rightHandCollider != null)
+            rightHandCollider.enabled = false;
+        if (leftFootCollider != null)
+            leftFootCollider.enabled = false;
+        if (rightFootCollider != null)
+            rightFootCollider.enabled = false;
     }
 
     IEnumerator PlayHitReaction()

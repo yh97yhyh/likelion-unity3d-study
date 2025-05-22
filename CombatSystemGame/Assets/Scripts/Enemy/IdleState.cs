@@ -23,7 +23,7 @@ public class IdleState : State<EnemyController>
             if (angle <= enemy.Fov / 2)
             {
                 enemy.Target = target;
-                enemy.ChangeState(EnemyState.CombatMove);
+                enemy.ChangeState(EnemyState.CombatMovement);
                 break;
             }
         }

@@ -2,47 +2,56 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    CameraController cameraController;
+    // 이동 속도
     [SerializeField] float moveSpeed = 5f;
+    // 회전 속도
     [SerializeField] float rotationSpeed = 500f;
+
+    [Header("그라운드 체크 설정")]
     [SerializeField] float groundCheckRadius = 0.2f;
     [SerializeField] Vector3 groundCheckOffset;
     [SerializeField] LayerMask groundLayer;
-    Quaternion targetRotation;
 
-    Animator anim;
-    string moveAmountStr = "moveAmount";
+
+    bool isGrounded;
+    // 목표 회전값
+    Quaternion targetRotation;
+    float ySpeed;
+
+    // 카메라 컨트롤러 참조
+    CameraController cameraController;
+    Animator animator;
     CharacterController characterController;
     MeeleFighter meeleFighter;
 
-    bool isGrounded;
-    float ySpeed;
-
     private void Awake()
     {
+        // 메인 카메라에서 CameraController 컴포넌트 가져오기
         cameraController = Camera.main.GetComponent<CameraController>();
-        anim = GetComponent<Animator>();
+        animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         meeleFighter = GetComponent<MeeleFighter>();
     }
 
     void Update()
     {
+
         if (meeleFighter.inAction)
         {
-            anim.SetFloat(moveAmountStr, 0f);
+            animator.SetFloat("forwardSpeed", 0f);
             return;
         }
 
+
+        // 수평, 수직 입력값 받기
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-
-        float moveAmount = Mathf.Clamp01(Mathf.Abs(h) + Mathf.Abs(v));
-
-        var moveInput = (new Vector3(h, 0, v)).normalized;
-        var moveDir = cameraController.PlannerRotation * moveInput;
+        float moveAmount = Mathf.Clamp01(Mathf.Abs(h) + Mathf.Abs(v)); // 전체 이동량 계산
+        var moveInput = (new Vector3(h, 0, v)).normalized; // 입력 방향 정규화
+        var moveDir = cameraController.PlannerRotation * moveInput; // 카메라 방향을 기준으로 이동 방향 계산
 
         GroundCheck();
+
 
         if (isGrounded)
         {
@@ -56,26 +65,26 @@ public class PlayerController : MonoBehaviour
         var velocity = moveDir * moveSpeed;
         velocity.y = ySpeed;
 
+        characterController.Move(velocity * Time.deltaTime);
+
         if (moveAmount > 0)
         {
-            characterController.Move(velocity * Time.deltaTime);
-            transform.position += moveDir * moveSpeed * Time.deltaTime;
-            targetRotation = Quaternion.LookRotation(moveDir);
+            targetRotation = Quaternion.LookRotation(moveDir); // 이동 방향으로 회전 목표 설정
         }
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime); // 부드러운 회전 처리
 
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        anim.SetFloat(moveAmountStr, moveAmount, 0.2f, Time.deltaTime);
+        animator.SetFloat("forwardSpeed", moveAmount, 0.2f, Time.deltaTime);
     }
 
     void GroundCheck()
     {
         isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
-        //Debug.Log($"isGrounded = {isGrounded}");
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(0, 1, 0, 0.5f);
         Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
     }
+
 }

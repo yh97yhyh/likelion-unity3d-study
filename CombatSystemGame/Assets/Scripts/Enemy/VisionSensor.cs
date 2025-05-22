@@ -11,6 +11,7 @@ public class VisionSensor : MonoBehaviour
         if (fighter != null)
         {
             enemy.TargetsInRange.Add(fighter);
+            EnemyManager.Instance.AddEnemyInRange(enemy);
         }
     }
 
@@ -21,6 +22,7 @@ public class VisionSensor : MonoBehaviour
         if (fighter != null)
         {
             enemy.TargetsInRange.Remove(fighter);
+            EnemyManager.Instance.RemoveEnemyInRange(enemy);
         }
     }
 }
