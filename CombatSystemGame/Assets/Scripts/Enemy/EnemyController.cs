@@ -6,7 +6,8 @@ using UnityEngine.AI;
 public enum EnemyState { 
     Idle, 
     CombatMovement,
-    Attack
+    Attack,
+    RetreatAfterAttack
 }
 
 public class EnemyController : MonoBehaviour
@@ -33,6 +34,7 @@ public class EnemyController : MonoBehaviour
         stateDict[EnemyState.Idle] = GetComponent<IdleState>();
         stateDict[EnemyState.CombatMovement] = GetComponent<CombatMovementState>();
         stateDict[EnemyState.Attack] = GetComponent<AttackState>();
+        stateDict[EnemyState.RetreatAfterAttack] = GetComponent<RetreatAfterAttackState>();
 
         StateMachine = new StateMachine<EnemyController>(this);
         StateMachine.ChangeState(stateDict[EnemyState.Idle]);
@@ -52,7 +54,8 @@ public class EnemyController : MonoBehaviour
     {
         StateMachine.Execute();
 
-        var deltaPos = transform.position - prevPos;
+        //var deltaPos = transform.position - prevPos;
+        var deltaPos = Anim.applyRootMotion ? Vector3.zero : transform.position - prevPos;
         var velocity = deltaPos / Time.deltaTime;
 
         float forwardSpeed = Vector3.Dot(velocity, transform.forward);

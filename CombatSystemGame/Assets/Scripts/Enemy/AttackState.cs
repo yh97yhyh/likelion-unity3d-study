@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Data.Common;
 using UnityEngine;
 
 public class AttackState : State<EnemyController>
@@ -29,24 +30,34 @@ public class AttackState : State<EnemyController>
 
         if (Vector3.Distance(enemy.Target.transform.position, enemy.transform.position) <= attackDistance + 0.03f)
         {
-            StartCoroutine(Attack());
+            StartCoroutine(Attack(Random.Range(0, enemy.Fighter.Attacks.Count+1)));
         }
     }
 
-    public override void Exit()
+    IEnumerator Attack(int comboCount = 1)
     {
-        base.Exit();
-    }
-
-    IEnumerator Attack()
-    {
+        Debug.Log("comboCount : " + comboCount);
         isAttacking = true;
         enemy.Anim.applyRootMotion = true;
         enemy.Fighter.TryAttack();
+
+        for (int i = 1; i < comboCount; i++)
+        {
+            yield return new WaitUntil(() => enemy.Fighter.combatState == CombatState.Cooldown);
+            enemy.Fighter.TryAttack();
+        }
 
         yield return new WaitUntil(() => enemy.Fighter.combatState == CombatState.Idle);
 
         enemy.Anim.applyRootMotion = false;
         isAttacking = false;
+
+        enemy.ChangeState(EnemyState.RetreatAfterAttack);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        enemy.NavAgent.ResetPath();
     }
 }

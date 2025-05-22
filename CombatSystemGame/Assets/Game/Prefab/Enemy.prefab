@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8519055466380555169}
   - component: {fileID: 1701862287320815625}
   - component: {fileID: 9005964439835116468}
+  - component: {fileID: 3239915604232122049}
   - component: {fileID: 2774677963873010273}
   - component: {fileID: 7096902103727918212}
   m_Layer: 8
@@ -143,6 +144,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDistance: 1
+--- !u!114 &3239915604232122049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2261404290244997549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1933e930f9123964aaaf64d3a7540309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backwardWalkSpeed: 1.5
+  distanceToRetreat: 3
 --- !u!114 &2774677963873010273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,6 +173,7 @@ MonoBehaviour:
   attacks:
   - {fileID: 11400000, guid: 8b591c33d36b7e24e93c6f5ef1779d1b, type: 2}
   - {fileID: 11400000, guid: 917d8e877802e9e4d8c9da586bf0e450, type: 2}
+  - {fileID: 11400000, guid: 99e26bcd7757b2043bd7f229fea70436, type: 2}
   sword: {fileID: 1736364177375792739}
   combatState: 0
 --- !u!195 &7096902103727918212
