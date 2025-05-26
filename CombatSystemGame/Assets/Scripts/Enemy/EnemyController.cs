@@ -7,7 +7,8 @@ public enum EnemyState {
     Idle, 
     CombatMovement,
     Attack,
-    RetreatAfterAttack
+    RetreatAfterAttack,
+    Dead
 }
 
 public class EnemyController : MonoBehaviour
@@ -22,6 +23,8 @@ public class EnemyController : MonoBehaviour
     public NavMeshAgent NavAgent { get; private set; }
     public Animator Anim { get; private set; }
     public MeeleFighter Fighter { get; private set; }
+    public VisionSensor VSeonsor { get; set; }
+    public SkinnedMeshHightlighter MeshHighligher { get; private set; }
     Vector3 prevPos;
 
     private void Start()
@@ -29,12 +32,14 @@ public class EnemyController : MonoBehaviour
         NavAgent = GetComponent<NavMeshAgent>();
         Anim = GetComponent<Animator>();
         Fighter = GetComponent<MeeleFighter>();
+        MeshHighligher = GetComponent<SkinnedMeshHightlighter>();
 
         stateDict = new Dictionary<EnemyState, State<EnemyController>>();
         stateDict[EnemyState.Idle] = GetComponent<IdleState>();
         stateDict[EnemyState.CombatMovement] = GetComponent<CombatMovementState>();
         stateDict[EnemyState.Attack] = GetComponent<AttackState>();
         stateDict[EnemyState.RetreatAfterAttack] = GetComponent<RetreatAfterAttackState>();
+        stateDict[EnemyState.Dead] = GetComponent<DeadState>();
 
         StateMachine = new StateMachine<EnemyController>(this);
         StateMachine.ChangeState(stateDict[EnemyState.Idle]);
@@ -54,7 +59,6 @@ public class EnemyController : MonoBehaviour
     {
         StateMachine.Execute();
 
-        //var deltaPos = transform.position - prevPos;
         var deltaPos = Anim.applyRootMotion ? Vector3.zero : transform.position - prevPos;
         var velocity = deltaPos / Time.deltaTime;
 

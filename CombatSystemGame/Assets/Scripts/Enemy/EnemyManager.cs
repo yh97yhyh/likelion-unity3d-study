@@ -7,9 +7,11 @@ public class EnemyManager : MonoBehaviour
     public static EnemyManager Instance;
 
     [SerializeField] Vector2 timeRangeBetweenAttacks = new Vector2(1, 4);
+    [SerializeField] CombatController player;
 
     public List<EnemyController> enemiesInRange = new List<EnemyController>();
     float notAttackingTimer = 2f;
+    float targetingTimer;
 
     private void Awake()
     {
@@ -36,15 +38,33 @@ public class EnemyManager : MonoBehaviour
             {
                 // АјАн
                 var attackingEnemy = SelectEnemyForAttack();
-                attackingEnemy.ChangeState(EnemyState.Attack);
-                notAttackingTimer = Random.Range(timeRangeBetweenAttacks.x, timeRangeBetweenAttacks.y);
+                
+                if (attackingEnemy != null)
+                {
+                    attackingEnemy.ChangeState(EnemyState.Attack);
+                    notAttackingTimer = Random.Range(timeRangeBetweenAttacks.x, timeRangeBetweenAttacks.y);
+                }
             }
         }
+
+        if (targetingTimer > 0.1f)
+        {
+            targetingTimer = 0f;
+            var closestEnemy = GetClosesEnemyToPlayerDir();
+            if (closestEnemy != null && closestEnemy != player.targetEnemy)
+            {
+                var prevEnemy = player.targetEnemy;
+                player.targetEnemy = closestEnemy;
+                player.targetEnemy?.MeshHighligher.HighlightMesh(true);
+                prevEnemy?.MeshHighligher.HighlightMesh(false);
+            }
+        }
+        targetingTimer += Time.deltaTime;
     }
 
     EnemyController SelectEnemyForAttack()
     {
-        return enemiesInRange.OrderByDescending(e => e.CombatMovementTimer).FirstOrDefault();
+        return enemiesInRange.OrderByDescending(e => e.CombatMovementTimer).FirstOrDefault(e => e.Target != null);
     }
 
     public void AddEnemyInRange(EnemyController enemy)
@@ -58,5 +78,35 @@ public class EnemyManager : MonoBehaviour
     public void RemoveEnemyInRange(EnemyController enemy)
     {
         enemiesInRange.Remove(enemy);
+    }
+
+    public EnemyController GetAttackingEnemy()
+    {
+        return enemiesInRange.FirstOrDefault(e => e.IsInState(EnemyState.Attack));
+    }
+
+    public EnemyController GetClosesEnemyToPlayerDir()
+    {
+        var targetingDir = player.GetTargetingDir();
+
+        float minDistance = Mathf.Infinity;
+        EnemyController closestEnemy = null;
+
+        foreach(var enemy in enemiesInRange)
+        {
+            var vecToEnemy = enemy.transform.position - player.transform.position;
+            vecToEnemy.y = 0;
+
+            float angle = Vector3.Angle(targetingDir, vecToEnemy);
+            float distance = vecToEnemy.magnitude * Mathf.Sin(angle * Mathf.Deg2Rad);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestEnemy = enemy;
+            }
+        }
+
+        return closestEnemy;
     }
 }

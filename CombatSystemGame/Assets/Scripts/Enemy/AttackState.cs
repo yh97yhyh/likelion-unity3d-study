@@ -30,7 +30,7 @@ public class AttackState : State<EnemyController>
 
         if (Vector3.Distance(enemy.Target.transform.position, enemy.transform.position) <= attackDistance + 0.03f)
         {
-            StartCoroutine(Attack(Random.Range(0, enemy.Fighter.Attacks.Count+1)));
+            StartCoroutine(Attack(Random.Range(1, enemy.Fighter.Attacks.Count+1)));
         }
     }
 
@@ -52,7 +52,12 @@ public class AttackState : State<EnemyController>
         enemy.Anim.applyRootMotion = false;
         isAttacking = false;
 
-        enemy.ChangeState(EnemyState.RetreatAfterAttack);
+        if (enemy.IsInState(EnemyState.Attack))
+        {
+            enemy.ChangeState(EnemyState.RetreatAfterAttack);
+        }
+
+        //enemy.ChangeState(EnemyState.RetreatAfterAttack);
     }
 
     public override void Exit()

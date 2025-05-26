@@ -21,6 +21,7 @@ public class MeeleFighter : MonoBehaviour
 
     Animator anim;
     public bool inAction { get; set; } = false;
+    public bool inCounter { get; set; } = false;
     public CombatState combatState;
     bool doCombo;
     int comboCount = 0;
@@ -91,6 +92,11 @@ public class MeeleFighter : MonoBehaviour
 
             if (combatState == CombatState.Windup)
             {
+                if (inCounter)
+                {
+                    break;
+                }
+
                 if (normalizedTime >= attack.ImpactStartTime)
                 {
                     combatState = CombatState.Impact;
@@ -121,6 +127,39 @@ public class MeeleFighter : MonoBehaviour
 
         combatState = CombatState.Idle;
         comboCount = 0;
+        inAction = false;
+    }
+
+    //public void CounterAttack(EnemyController enemy)
+    //{
+    //    StartCoroutine(PerformCounterAttack(enemy));
+    //}
+
+    public IEnumerator PerformCounterAttack(EnemyController opponent)
+    {
+        inAction = true;
+        inCounter = true;
+        opponent.Fighter.inCounter = true;
+
+        opponent.ChangeState(EnemyState.Dead);
+
+        var dispVec = opponent.transform.position - transform.position;
+        dispVec.y = 0f;
+        transform.rotation = Quaternion.LookRotation(dispVec);
+        opponent.transform.rotation = Quaternion.LookRotation(-dispVec);
+
+        //var targetPos = opponent.transform.position - dispVec.normalized * 1f;
+
+        anim.CrossFade("CounterAttack", 0.2f);
+        opponent.Anim.CrossFade("CounterAttackVictim", 0.2f);
+
+        yield return null; // 1프레임 null로 넘어가기 
+
+        var animState = anim.GetNextAnimatorStateInfo(1);
+        yield return new WaitForSeconds(animState.length * 0.8f);
+
+        inCounter = false;
+        opponent.Fighter.inCounter = false;
         inAction = false;
     }
 
@@ -176,4 +215,6 @@ public class MeeleFighter : MonoBehaviour
     }
 
     public List<AttackData> Attacks => attacks;
+
+    public bool IsCounterable => combatState == CombatState.Windup && comboCount == 0;
 }

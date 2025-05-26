@@ -4,6 +4,11 @@ public class VisionSensor : MonoBehaviour
 {
     [SerializeField] EnemyController enemy;
 
+    private void Awake()
+    {
+        enemy.VSeonsor = this;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         var fighter = other.GetComponent<MeeleFighter>();
