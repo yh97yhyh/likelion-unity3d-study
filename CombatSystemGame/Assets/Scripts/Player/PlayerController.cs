@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     CharacterController characterController;
     MeeleFighter meeleFighter;
+    CombatController combatController;
 
     private void Awake()
     {
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         meeleFighter = GetComponent<MeeleFighter>();
+        combatController = GetComponent<CombatController>();
     }
 
     void Update()
@@ -67,13 +69,36 @@ public class PlayerController : MonoBehaviour
 
         characterController.Move(velocity * Time.deltaTime);
 
-        if (moveAmount > 0)
+        if (combatController.CombatMode)
         {
-            targetRotation = Quaternion.LookRotation(moveDir); // 이동 방향으로 회전 목표 설정
-        }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime); // 부드러운 회전 처리
+            velocity /= 4f;
+            var targetVec = combatController.TargetEnemy.transform.position - transform.position;
+            targetVec.y = 0;
 
-        animator.SetFloat("forwardSpeed", moveAmount, 0.2f, Time.deltaTime);
+            if (moveAmount > 0)
+            {
+                targetRotation = Quaternion.LookRotation(targetVec);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+
+            float forwardSpeed = Vector3.Dot(velocity, transform.forward);
+
+            animator.SetFloat("forwardSpeed", forwardSpeed / moveSpeed, 0.2f, Time.deltaTime);
+
+            float angle = Vector3.SignedAngle(transform.forward, velocity, Vector3.up);
+            float strafeSpeed = Mathf.Sin(angle * Mathf.Deg2Rad);
+            animator.SetFloat("strafeSpeed", strafeSpeed, 0.2f, Time.deltaTime);
+        }
+        else
+        {
+            if (moveAmount > 0)
+            {
+                targetRotation = Quaternion.LookRotation(moveDir); // 이동 방향으로 회전 목표 설정
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime); // 부드러운 회전 처리
+
+            animator.SetFloat("forwardSpeed", moveAmount, 0.2f, Time.deltaTime);
+        }
     }
 
     void GroundCheck()

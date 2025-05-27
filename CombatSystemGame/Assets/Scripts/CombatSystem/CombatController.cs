@@ -2,11 +2,40 @@ using UnityEngine;
 
 public class CombatController : MonoBehaviour
 {
+    EnemyController _targetEnemy;
+    public EnemyController TargetEnemy
+    {
+        get => _targetEnemy;
+        set
+        {
+            _targetEnemy = value;
+            if(_targetEnemy == null)
+            {
+                CombatMode = false;
+            }
+        }
+    }
+
+    private bool _combatMode;
+    public bool CombatMode
+    {
+        get => _combatMode;
+        set
+        {
+            _combatMode = value;
+            if (_targetEnemy == null)
+            {
+                _combatMode = false;
+            }
+            anim.SetBool("combatMode", value);
+        }
+    }
+
     MeeleFighter meeleFighter;
     Animator anim;
     CameraController cam;
 
-    public EnemyController targetEnemy;
+    //public EnemyController targetEnemy;
 
     private void Awake()
     {
@@ -14,7 +43,6 @@ public class CombatController : MonoBehaviour
         anim = GetComponent<Animator>();
         cam = Camera.main.GetComponent<CameraController>();
     }
-
 
     private void Update()
     {
@@ -29,7 +57,13 @@ public class CombatController : MonoBehaviour
             else
             {
                 meeleFighter.TryAttack();
+                CombatMode = true;
             }
+        }
+
+        if (Input.GetButton("LockOn"))
+        {
+            CombatMode = !CombatMode;
         }
     }
 
